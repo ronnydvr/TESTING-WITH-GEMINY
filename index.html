@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Shared Number Storage</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+            padding: 20px;
+        }
+        #numberDisplay {
+            font-size: 2em;
+            font-weight: bold;
+        }
+        input[type="number"] {
+            padding: 10px;
+            font-size: 1em;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+        #message {
+            font-style: italic;
+            color: green;
+        }
+        #error {
+            color: red;
+        }
+    </style>
+</head>
+<body>
+    <h1>The Shared Number Is:</h1>
+    <div id="numberDisplay">Loading...</div>
+    <div id="error"></div>
+
+    <div>
+        <label for="newNumber">Enter New Number:</label>
+        <input type="number" id="newNumber">
+    </div>
+
+    <button id="updateButton">Update Number</button>
+    <div id="message"></div>
+
+    <script>
+        const numberDisplay = document.getElementById('numberDisplay');
+        const newNumberInput = document.getElementById('newNumber');
+        const updateButton = document.getElementById('updateButton');
+        const messageDiv = document.getElementById('message');
+        const errorDiv = document.getElementById('error');
+        const apiUrl = '/.netlify/functions'; // Base path for Netlify Functions
+
+        // Function to fetch the current number
+        async function getNumber() {
+            try {
+                const response = await fetch(`${apiUrl}/getNumber`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const data = await response.json();
+                numberDisplay.textContent = data.number;
+                errorDiv.textContent = '';
+            } catch (error) {
+                console.error("Could not fetch number:", error);
+                numberDisplay.textContent = 'Error loading number.';
+                errorDiv.textContent = 'Failed to load number.';
+            }
+        }
+
+        // Function to update the number
+        async function updateNumber(newNumber) {
+            try {
+                const response = await fetch(`${apiUrl}/updateNumber`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ number: newNumber }),
+                });
+
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+
+                const data = await response.json();
+                numberDisplay.textContent = data.number;
+                newNumberInput.value = '';
+                messageDiv.textContent = 'Number updated successfully!';
+                errorDiv.textContent = '';
+                setTimeout(() => {
+                    messageDiv.textContent = '';
+                }, 2000);
+            } catch (error) {
+                console.error("Could not update number:", error);
+                errorDiv.textContent = 'Failed to update number.';
+            }
+        }
+
+        // Handle the update button click
+        updateButton.addEventListener('click', () => {
+            const newNumber = newNumberInput.value;
+            if (newNumber !== '') {
+                updateNumber(newNumber);
+            } else {
+                messageDiv.textContent = 'Please enter a number.';
+                setTimeout(() => {
+                    messageDiv.textContent = '';
+                }, 2000);
+            }
+        });
+
+        // Load the number when the page is first loaded
+        getNumber();
+    </script>
+</body>
+</html>
