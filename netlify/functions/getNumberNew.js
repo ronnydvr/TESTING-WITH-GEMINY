@@ -1,8 +1,8 @@
-cconst fs = require('fs').promises;
+const fs = require('fs').promises;
 const path = require('path');
 
 exports.handler = async (event) => {
-  console.log("Current working directory:", process.cwd()); // Added console.log
+  console.log("Current working directory:", process.cwd()); // Add this line
 
   try {
     const filePath = path.join(process.cwd(), 'data.json');
