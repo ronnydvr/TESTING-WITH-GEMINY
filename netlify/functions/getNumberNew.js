@@ -6,7 +6,8 @@ exports.handler = async (event) => {
 
   try {
    
-    const filePath = path.join(process.cwd(), '..', 'data.json');
+    
+const filePath = '/data.json';
     const rawData = await fs.readFile(filePath, 'utf8');
     const data = JSON.parse(rawData);
 
